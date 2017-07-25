@@ -192,7 +192,7 @@ class CPLELearningModel(BaseEstimator):
         #re-train, labeling unlabeled instances pessimistically
         
         # pessimistic soft labels ('weights') q for unlabelled points, q=P(k=0|Xu)
-        f = lambda softlabels, grad=[]: self.discriminative_likelihood_objective(self.model, labeledX, labeledy=labeledy, unlabeledData=unlabeledX, unlabeledWeights=numpy.vstack((softlabels, 1-softlabels)).T, gradient=grad) #- supLL
+        f = lambda softlabels, grad=[]: self.discriminative_likelihood_objective(self.model, labeledX, labeledy=labeledy, unlabeledData=unlabeledX, unlabeledWeights=numpy.vstack((softlabels, 1-numpy.array(softlabels))).T, gradient=grad) #- supLL
         lblinit = numpy.random.random(len(unlabeledy))
 
         try:
