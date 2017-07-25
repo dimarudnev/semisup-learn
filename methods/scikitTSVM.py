@@ -3,7 +3,7 @@ import sklearn.metrics
 import random as rnd
 import numpy
 from sklearn.linear_model import LogisticRegression as LR
-from qns3vm import QN_S3VM
+from .qns3vm import QN_S3VM
 
 class SKTSVM(BaseEstimator):
     """

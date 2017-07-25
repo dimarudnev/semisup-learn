@@ -302,7 +302,7 @@ class QN_S3VM_Dense:
         return self.__needed_function_calls
 
     def __setParameters(self,  ** kw):
-        for attr, val in kw.items():
+        for attr, val in list(kw.items()):
             self.parameters[attr] = val
         self.__lam = float(self.parameters['lam'])
         assert self.__lam > 0
@@ -317,7 +317,7 @@ class QN_S3VM_Dense:
             assert (self.__numR <= len(self.__X)) and (self.__numR > 0)
         else:
             self.__numR = len(self.__X)
-        self.__regressors_indices = sorted(self.__random_generator.sample( range(0,len(self.__X)), self.__numR ))
+        self.__regressors_indices = sorted(self.__random_generator.sample( list(range(0,len(self.__X))), self.__numR ))
         self.__dim = self.__numR + 1 # add bias term b
         self.__minimum_labeled_patterns_for_estimate_r = float(self.parameters['minimum_labeled_patterns_for_estimate_r'])
         # If reliable estimate is available or can be estimated, use it, otherwise
@@ -355,7 +355,7 @@ class QN_S3VM_Dense:
         c_current = zeros(self.__dim, float64)
         c_current[self.__dim-1] = self.__b
         # Annealing sequence.
-        for i in xrange(len(self.__lam_Uvec)):
+        for i in range(len(self.__lam_Uvec)):
             self.__lamU = self.__lam_Uvec[i]
             # crop one dimension (in case the offset b is fixed)
             c_current = c_current[:self.__dim-1]
@@ -392,7 +392,7 @@ class QN_S3VM_Dense:
             self.__KNR = cp.deepcopy(bmat([[self.__KLR], [self.__KUR]]))
             self.__KRR = self.__KNR[self.__regressors_indices,:]
             # Center patterns in feature space (with respect to approximated mean of unlabeled patterns in the feature space)
-            subset_unlabled_indices = sorted(self.__random_generator.sample( range(0,len(self.__X_u)), min(self.__max_unlabeled_subset_size, len(self.__X_u)) ))
+            subset_unlabled_indices = sorted(self.__random_generator.sample( list(range(0,len(self.__X_u))), min(self.__max_unlabeled_subset_size, len(self.__X_u)) ))
             self.__X_u_subset = (mat(self.__X_u)[subset_unlabled_indices,:].tolist())
             self.__KNU_bar = self.__kernel.computeKernelMatrix(self.__X, self.__X_u_subset, symmetric=False)
             self.__KNU_bar_horizontal_sum = (1.0 / len(self.__X_u_subset)) * self.__KNU_bar.sum(axis=1)
@@ -402,8 +402,8 @@ class QN_S3VM_Dense:
             self.__KU_barU_bar_sum = (1.0 / (len(self.__X_u_subset)))**2 * self.__KU_barU_bar.sum()
             self.__KNR = self.__KNR - self.__KNU_bar_horizontal_sum - self.__KU_barR_vertical_sum + self.__KU_barU_bar_sum
             self.__KRR = self.__KNR[self.__regressors_indices,:]
-            self.__KLR = self.__KNR[range(0,len(self.__X_l)),:]
-            self.__KUR = self.__KNR[range(len(self.__X_l),len(self.__X)),:]
+            self.__KLR = self.__KNR[list(range(0,len(self.__X_l))),:]
+            self.__KUR = self.__KNR[list(range(len(self.__X_l),len(self.__X))),:]
             self.__matrices_initialized = True
 
     def __getFitness(self,c):
@@ -561,9 +561,9 @@ class QN_S3VM_Sparse:
         W = self.X.T*c_new - self.__mean_u.T*np.sum(c_new)
         # Again, possibility of dimension mismatch due to use of sparse matrices
         if X.shape[1] > W.shape[0]:
-            X = X[:,range(W.shape[0])]
+            X = X[:,list(range(W.shape[0]))]
         if X.shape[1] < W.shape[0]:
-            W = W[range(X.shape[1])]
+            W = W[list(range(X.shape[1]))]
         X = X.tocsc()
         preds = X * W + self.__b
         if real_valued == True:
@@ -603,7 +603,7 @@ class QN_S3VM_Sparse:
         return self.__needed_function_calls
 
     def __setParameters(self,  ** kw):
-        for attr, val in kw.items():
+        for attr, val in list(kw.items()):
             self.parameters[attr] = val
         self.__lam = float(self.parameters['lam'])
         assert self.__lam > 0
@@ -643,7 +643,7 @@ class QN_S3VM_Sparse:
         c_current = zeros(self.__dim, float64)
         c_current[self.__dim-1] = self.__b
         # Annealing sequence.
-        for i in xrange(len(self.__lam_Uvec)):
+        for i in range(len(self.__lam_Uvec)):
             self.__lamU = self.__lam_Uvec[i]
             # crop one dimension (in case the offset b is fixed)
             c_current = c_current[:self.__dim-1]
@@ -747,7 +747,7 @@ class LinearKernel():
         assert self._data1.shape[1] == (self._data2.T).shape[0]
         try:
             return self._data1 * self._data2.T
-        except Exception, e:
+        except Exception as e:
             logging.error("Error while computing kernel matrix: " + str(e))
             import traceback
             traceback.print_exc()
@@ -785,24 +785,24 @@ class DictLinearKernel():
         try:
             km = mat(zeros((self._dim1, self._dim2), dtype=float64))
             if self._symmetric:
-                for i in xrange(self._dim1):
+                for i in range(self._dim1):
                     message = 'Kernel Matrix Progress: %dx%d/%dx%d' % (i, self._dim2,self._dim1,self._dim2)
                     logging.debug(message)
-                    for j in xrange(i, self._dim2):
+                    for j in range(i, self._dim2):
                         val = self.getKernelValue(self._data1[i], self._data2[j])
                         km[i, j] = val
                         km[j, i] = val
                 return km
             else:
-                for i in xrange(self._dim1):
+                for i in range(self._dim1):
                     message = 'Kernel Matrix Progress: %dx%d/%dx%d' % (i, self._dim2,self._dim1,self._dim2)
                     logging.debug(message)
-                    for j in xrange(0, self._dim2):
+                    for j in range(0, self._dim2):
                         val = self.getKernelValue(self._data1[i], self._data2[j])
                         km[i, j] = val
                 return km
             
-        except Exception, e:
+        except Exception as e:
             logging.error("Error while computing kernel matrix: " + str(e))
             sys.exit()
         logging.debug("Kernel Matrix computed...")
@@ -853,11 +853,11 @@ class RBFKernel():
                 assert self._data1.shape[1] == self._data2.shape[1]
                 linkm = mat(self._data1 * self._data2.T)
                 trnorms1 = []
-                for i in xrange(m):
+                for i in range(m):
                     trnorms1.append((self._data1[i] * self._data1[i].T)[0,0])
                 trnorms1 = mat(trnorms1).T
                 trnorms2 = []
-                for i in xrange(n):
+                for i in range(n):
                     trnorms2.append((self._data2[i] * self._data2[i].T)[0,0])
                 trnorms2 = mat(trnorms2).T
                 self.__km = trnorms1 * mat(np.ones((n, 1), dtype = float64)).T
@@ -866,7 +866,7 @@ class RBFKernel():
                 self.__km = - self.__sigma_squared_inv * self.__km
                 self.__km = np.exp(self.__km)
                 return self.__km
-        except Exception, e:
+        except Exception as e:
             logging.error("Error while computing kernel matrix: " + str(e))
             sys.exit()
 
@@ -902,23 +902,23 @@ class DictRBFKernel():
         try:
             km = mat(zeros((self._dim1, self._dim2), dtype=float64))
             if self._symmetric:
-                for i in xrange(self._dim1):
+                for i in range(self._dim1):
                     message = 'Kernel Matrix Progress: %dx%d/%dx%d' % (i, self._dim2,self._dim1,self._dim2)
                     logging.debug(message)
-                    for j in xrange(i, self._dim2):
+                    for j in range(i, self._dim2):
                         val = self.getKernelValue(self._data1[i], self._data2[j])
                         km[i, j] = val
                         km[j, i] = val
                 return km
             else:
-                for i in xrange(0, self._dim1):
+                for i in range(0, self._dim1):
                     message = 'Kernel Matrix Progress: %dx%d/%dx%d' % (i, self._dim2,self._dim1,self._dim2)
                     logging.debug(message)
-                    for j in xrange(0, self._dim2):
+                    for j in range(0, self._dim2):
                         val = self.getKernelValue(self._data1[i], self._data2[j])
                         km[i, j] = val
                 return km
-        except Exception, e:
+        except Exception as e:
             logging.error("Error while computing kernel matrix: " + str(e))
             sys.exit()
         logging.info("Kernel Matrix computed...")
@@ -933,6 +933,6 @@ class DictRBFKernel():
                 diff[key]-=xj[key]
             else:
                 diff[key]=-xj[key]
-        diff = diff.values()
+        diff = list(diff.values())
         val = exp(-self.__sigma_squared_inv * (dot(diff, diff)))
         return val

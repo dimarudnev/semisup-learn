@@ -11,7 +11,7 @@ def evaluate_and_plot(model, Xs, ys, ytrue, lbl, subplot = None, block=False):
     pred = model.predict(Xs)
     
     acc = np.mean(pred==ytrue)
-    print "accuracy:", round(acc, 3)
+    print("accuracy:", round(acc, 3))
     
     # plot probabilities
     [minx, maxx] = [np.min(Xs[:, 0]), np.max(Xs[:, 0])]
@@ -31,7 +31,7 @@ def evaluate_and_plot(model, Xs, ys, ytrue, lbl, subplot = None, block=False):
         else:
             plt.contour(model.predict(Xfull).reshape((gridsize, gridsize)), extent=(minx, maxx, miny, maxy), origin='lower')
     except:
-        print "contour failed"
+        print("contour failed")
     
     # plot data points
     P = np.max(model.predict_proba(Xs), axis=1)
