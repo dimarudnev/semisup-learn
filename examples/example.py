@@ -8,16 +8,14 @@ from methods.scikitWQDA import WQDA
 from frameworks.SelfLearning import SelfLearningModel
 
 # load data
-cancer = fetch_mldata("Lung cancer (Ontario)")
-X = cancer.target.T
-ytrue = np.copy(cancer.data).flatten()
-ytrue[ytrue>0]=1
+cancer = fetch_mldata("iris")
+X = np.copy(cancer.data)[0:99] 
+ytrue = np.array(cancer.target.T[0:99]) -1
 
 # label a few points 
 labeled_N = 4
 ys = np.array([-1]*len(ytrue)) # -1 denotes unlabeled point
-random_labeled_points = random.sample(np.where(ytrue == 0)[0], labeled_N/2)+\
-                        random.sample(np.where(ytrue == 1)[0], labeled_N/2)
+random_labeled_points = [1, 50 ,32, 9]
 ys[random_labeled_points] = ytrue[random_labeled_points]
 
 # supervised score 
